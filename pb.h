@@ -2,6 +2,7 @@ class Ball
 {
     public:
         Ball(int i) { number = i; }
+        Ball() {};
 
         int   getNumber() { return number; }
         bool  isRed()     { return Red; }
