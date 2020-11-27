@@ -96,7 +96,7 @@ class Winning
 class Game
 {
     public:
-        Game();
+        Game() = default;
         ~Game();
         void Menu();
         void Play();

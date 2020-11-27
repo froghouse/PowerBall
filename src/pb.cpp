@@ -153,7 +153,6 @@ int Winning::getWinnings()
     return 0;
 }
 
-Game::Game() {};
 Game::~Game()
 {
     for (auto ticket : tickets)
