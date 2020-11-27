@@ -8,4 +8,4 @@ set(CMAKE_CXX_EXTENSIONS FALSE)
 
 add_compile_options(-Wall -Wextra -Werror)
 
-add_executable(pb src/main.cpp)
+add_executable(pb src/main.cpp src/pb.cpp)

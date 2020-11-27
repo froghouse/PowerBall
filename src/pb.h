@@ -16,19 +16,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 
+#include <iostream>
+#include <iomanip>
+#include <random>
+#include <algorithm>
+#include <vector>
+
+#ifndef __PB_H__
+#define __PB_H__ 1
+
 class Ball
 {
     public:
-        Ball(int i) { number = i; }
-        Ball() {};
-
-        int   getNumber() { return number; }
-        bool  isRed()     { return Red; }
-
-        bool operator == (int i) const { return number == i; }
-        bool operator == (Ball &rhs) const { return number == rhs.number; }
-        bool operator <  (Ball &rhs) const { return number < rhs.number;  }
-        bool operator >  (Ball &rhs) const { return number > rhs.number;  }
+        Ball() = default;
+        Ball(int i);
+        int   getNumber();
+        bool  isRed();
+        bool operator == (int i) const;
+        bool operator == (Ball &rhs) const;
+        bool operator <  (Ball &rhs) const;
+        bool operator >  (Ball &rhs) const;
     protected:
         int number;
         bool Red;
@@ -37,45 +44,20 @@ class Ball
 class WhiteBall : public Ball
 {
     public:
-        WhiteBall(int i) : Ball(i)
-    {
-        Red = false;
-    }
+        WhiteBall(int i);
 };
 
 class RedBall : public Ball
 {
     public:
-        RedBall(int i) : Ball(i)
-    {
-        Red = true;
-    }
+        RedBall(int i);
 };
 
 class RandomNumbers
 {
     public:
-        RandomNumbers(int min, int max, int amount)
-        {
-            std::random_device rd;
-            std::default_random_engine re(rd());
-            std::uniform_int_distribution<int> uid(min, max);
-
-            for (int i = 0; i < amount; i++)
-            {
-                int num = uid(re);
-
-                for (int n : numbers)
-                {
-                    if (n == num)
-                        num = uid(re);
-                }
-
-                numbers.push_back(num);
-            }
-        }
-
-        std::vector<int> getNumbers() { return numbers; }
+        RandomNumbers(int min, int max, int amount);
+        std::vector<int> getNumbers();
     private:    
         std::vector<int> numbers;
 };
@@ -83,24 +65,9 @@ class RandomNumbers
 class Ticket
 {
     public:
-        Ticket()
-        {
-            RandomNumbers ticketNums(1, 58, 6);
-            numbers = ticketNums.getNumbers();
-            std::sort(numbers.begin(), numbers.end());
-        }
-
-        void display()
-        {
-            std::cout << "Ticket:  ";
-            for (int i : numbers)
-            {
-                std::cout << std::setw(2) << i << " ";
-            }
-            std::cout << std::endl;
-        }
-
-        std::vector<int> getNumbers() { return numbers; }
+        Ticket();
+        void display();
+        std::vector<int> getNumbers();
     private:
         std::vector<int> numbers;
 };
@@ -108,43 +75,10 @@ class Ticket
 class Lottery
 {
     public:
-        Lottery()
-        {
-            RandomNumbers RandomWhite(1, 58, 5);
-            RandomNumbers RandomRed(1, 34, 1);
-
-            for (int n : RandomWhite.getNumbers())
-            {
-                balls.push_back(new WhiteBall(n));
-            }
-
-            std::sort(balls.begin(), balls.end(), [](Ball* a, Ball* b){ return *a < *b; });
-
-            balls.push_back(new RedBall(RandomRed.getNumbers()[0]));
-        }
-
-        ~Lottery()
-        {
-            for (auto ball : balls)
-            {
-                delete ball;
-            }
-        }
-
-        void display()
-        {
-            std::cout << "Lottery: ";
-
-            for (auto ball : balls)
-            {
-                if (ball->isRed())
-                    std::cout << "Red number: " << ball->getNumber() << std::endl;
-                else
-                    std::cout << std::setw(2) << ball->getNumber() << " ";
-            }
-        }
-
-        std::vector<Ball*> getBalls() { return balls; }
+        Lottery();
+        ~Lottery();
+        void display();
+        std::vector<Ball*> getBalls();
     private:
         std::vector<Ball*> balls;
 };
@@ -152,47 +86,8 @@ class Lottery
 class Winning
 {
     public:
-        Winning(std::vector<Ticket*> tickets, std::vector<Ball*> balls)
-        {
-            for (auto ticket : tickets)
-            {
-                int matches = 0;
-                bool hasRed = false;
-
-                for (int number : ticket->getNumbers())
-                {
-                    for (auto ball : balls)
-                    {
-                        if (*ball == number)
-                        {
-                            matches++;
-
-                            if (ball->isRed())
-                                hasRed = true;
-                        }
-                    }
-                }
-
-                winnsPerTicket.push_back(matches);
-                hasRedTicket.push_back(hasRed);
-            }
-        }
-
-        int getWinnings()
-        {
-            for (size_t i = 0; i < winnsPerTicket.size(); i++)
-            {
-                std::cout << "Got " << winnsPerTicket[i] << " matches.";
-
-                if (hasRedTicket[i])
-                    std::cout << " And has got the red ball!" << std::endl;
-                else
-                    std::cout << " But has not got the red ball." << std::endl;
-            }
-
-            return 0;
-        }
-
+        Winning(std::vector<Ticket*> tickets, std::vector<Ball*> balls);
+        int getWinnings();
     private:
         std::vector<int> winnsPerTicket;
         std::vector<bool> hasRedTicket;
@@ -201,61 +96,14 @@ class Winning
 class Game
 {
     public:
-        Game() {};
-        ~Game()
-        {
-            for (auto ticket : tickets)
-            {
-                delete ticket;
-            }
-        }
-
-        void Menu()
-        {
-            int numTic = 0;
-            std::cout << "Welcome to the PowerBall Lottery!" << std::endl;
-            std::cout << "To play you need to purchase a ticket at $2. More tickets increase the odds to win." << std::endl;
-            std::cout << "How many tickets would you like? " << std::endl;
-
-            do
-            {
-                std::cout << "Enter amount of tickets you would like to purchase: ";
-                std::cin >> numTic;
-                std::cin.sync();
-
-                if ((numTic < 1) || (numTic > 100))
-                {
-                    std::cout << "Input invalid. Needs to be a number between 1 and 100. Please try again" << std::endl;
-                }
-            } while ((numTic < 1) || (numTic > 100));
-
-            createTickets(numTic);
-            std::cout << "Your tickets are registered. Thank you for playing the PowerBall lottery!" << std::endl;
-        }
-
-        void Play()
-        {
-            std::cout << "Let\'s see this weeks PowerBall lottery numbers!" << std::endl;
-            lotto.display();
-
-            for (auto ticket : tickets)
-            {
-                ticket->display();
-            }
-
-            Winning w(tickets, lotto.getBalls());
-            w.getWinnings();
-        }
-
+        Game();
+        ~Game();
+        void Menu();
+        void Play();
     private:
         std::vector<Ticket*> tickets;
         Lottery lotto;
-
-        void createTickets(int numTic)
-        {
-            for (int i = 0; i < numTic; i++)
-            {
-                tickets.push_back(new Ticket);
-            }
-        }
+        void createTickets(int numTic);
 };
+
+#endif
